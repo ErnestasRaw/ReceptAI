@@ -1,4 +1,4 @@
-name: mobile-feature
+name: mobile
 
 on:
   push:
