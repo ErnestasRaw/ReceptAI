@@ -6,7 +6,7 @@ on:
       - mobile
 
 env:
-  FLUTTER_VERSION: '3.19.6'  # Centralize the Flutter version for easy updates
+  FLUTTER_VERSION: '3.19.6'
 
 jobs:
   build:
@@ -15,8 +15,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3  # Updated to the latest version
-
+      uses: actions/checkout@v3
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
