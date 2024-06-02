@@ -1,85 +1,38 @@
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:receptai/api/recipe_api.dart';
 import 'package:receptai/models/category_enum.dart';
 import 'package:receptai/models/ingredient.dart';
 
-class GeneratorController {
-  GeneratorController();
+class GeneratorController extends ChangeNotifier {
+  final RecipeApi recipeApi;
+  GeneratorController({RecipeApi? recipeApi}) : recipeApi = recipeApi ?? RecipeApi();
 
-  ProductCategory selectedCategory = ProductCategory.values.last;
+  ProductCategory _selectedCategory = ProductCategory.values.last;
+  ProductCategory get selectedCategory => _selectedCategory;
 
-  List<Ingredient> get filteredIngredients =>
-      exampleIngredients.where((element) => element.category == selectedCategory).toList();
-  List<Ingredient> selectedIngredients = [];
+  List<Ingredient> fetchedIngredients = [];
+  List<int> selectedIngredients = [];
 
-  List<Ingredient> exampleIngredients = [
-    Ingredient(
-      ingredientId: 1,
-      name: 'Morkos',
-      quantity: '1',
-      unit: 'vnt',
-      category: ProductCategory.fruitsAndVegetables,
-    ),
-    Ingredient(
-      ingredientId: 2,
-      name: 'Bulvės',
-      quantity: '2',
-      unit: 'vnt',
-      category: ProductCategory.fruitsAndVegetables,
-    ),
-    Ingredient(
-      ingredientId: 3,
-      name: 'Pomidorai',
-      quantity: '3',
-      unit: 'vnt',
-      category: ProductCategory.fruitsAndVegetables,
-    ),
-    Ingredient(
-      ingredientId: 5,
-      name: 'Mėsa',
-      quantity: '5',
-      unit: 'vnt',
-      category: ProductCategory.meatAndPoultry,
-    ),
-    Ingredient(
-      ingredientId: 6,
-      name: 'Pienas',
-      quantity: '6',
-      unit: 'vnt',
-      category: ProductCategory.dairyProducts,
-    ),
-    Ingredient(
-      ingredientId: 7,
-      name: 'Kiauliena',
-      quantity: '7',
-      unit: 'vnt',
-      category: ProductCategory.meatAndPoultry,
-    ),
-    Ingredient(
-      ingredientId: 8,
-      name: 'Vištiena',
-      quantity: '8',
-      unit: 'vnt',
-      category: ProductCategory.meatAndPoultry,
-    ),
-    Ingredient(
-      ingredientId: 9,
-      name: 'Jogurtas',
-      quantity: '9',
-      unit: 'vnt',
-      category: ProductCategory.dairyProducts,
-    ),
-    Ingredient(
-      ingredientId: 10,
-      name: 'Kefyras',
-      quantity: '10',
-      unit: 'vnt',
-      category: ProductCategory.dairyProducts,
-    ),
-    Ingredient(
-      ingredientId: 11,
-      name: 'Kiaušiniai',
-      quantity: '11',
-      unit: 'vnt',
-      category: ProductCategory.other,
-    ),
-  ];
+  Future<void> fetchIngredients() async {
+    Response response = await RecipeApi.getIngredients(_selectedCategory.id);
+    fetchedIngredients =
+        (response.data['data']).map<Ingredient>((ingredient) => Ingredient.fromJson(ingredient)).toList();
+    notifyListeners();
+  }
+
+  void addIngredient(int ingredientId) {
+    selectedIngredients.add(ingredientId);
+    notifyListeners();
+  }
+
+  void removeIngredient(int ingredientId) {
+    selectedIngredients.remove(ingredientId);
+    notifyListeners();
+  }
+
+  Future<void> onCategoryChanged(ProductCategory value) async {
+    _selectedCategory = value;
+    await fetchIngredients();
+  }
 }
